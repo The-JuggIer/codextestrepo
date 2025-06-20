@@ -1,7 +1,9 @@
 # codextestrepo
 
 This repository contains a simple endless car driving game built with
-[Pygame](https://www.pygame.org/).
+[Pygame](https://www.pygame.org/). The player's car is rendered using a
+top-down image of an Audi. Cars driving toward the player spawn roughly every
+five seconds and are marked with a small "BMW" label.
 
 ## Setup
 
