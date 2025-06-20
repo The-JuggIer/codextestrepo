@@ -41,6 +41,13 @@ def main():
     enemies = []
     next_spawn = pygame.time.get_ticks() + 5000
 
+    game_over = False
+    game_over_font = pygame.font.SysFont(None, 72)
+    game_over_text = game_over_font.render("GAME OVER", True, (255, 0, 0))
+    game_over_rect = game_over_text.get_rect(
+        center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
+    )
+
     lines = []
     y = -LINE_HEIGHT
     while y < WINDOW_HEIGHT:
@@ -55,37 +62,40 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            car.x -= CAR_SPEED
-        if keys[pygame.K_RIGHT]:
-            car.x += CAR_SPEED
+        if not game_over:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                car.x -= CAR_SPEED
+            if keys[pygame.K_RIGHT]:
+                car.x += CAR_SPEED
 
-        car.x = max(
-            WINDOW_WIDTH // 2 - ROAD_WIDTH // 2,
-            min(car.x, WINDOW_WIDTH // 2 + ROAD_WIDTH // 2 - CAR_WIDTH),
-        )
-
-        now = pygame.time.get_ticks()
-        if now >= next_spawn:
-            spawn_x = (
-                WINDOW_WIDTH // 2 - ROAD_WIDTH // 2
-                + random.randint(0, ROAD_WIDTH - CAR_WIDTH)
+            car.x = max(
+                WINDOW_WIDTH // 2 - ROAD_WIDTH // 2,
+                min(car.x, WINDOW_WIDTH // 2 + ROAD_WIDTH // 2 - CAR_WIDTH),
             )
-            enemies.append(
-                pygame.Rect(spawn_x, -CAR_HEIGHT, CAR_WIDTH, CAR_HEIGHT)
-            )
-            next_spawn = now + random.randint(3000, 7000)
 
-        for line in lines:
-            line.y += LINE_SPEED
-            if line.y > WINDOW_HEIGHT:
-                line.y = -LINE_HEIGHT
+            now = pygame.time.get_ticks()
+            if now >= next_spawn:
+                spawn_x = (
+                    WINDOW_WIDTH // 2 - ROAD_WIDTH // 2
+                    + random.randint(0, ROAD_WIDTH - CAR_WIDTH)
+                )
+                enemies.append(
+                    pygame.Rect(spawn_x, -CAR_HEIGHT, CAR_WIDTH, CAR_HEIGHT)
+                )
+                next_spawn = now + random.randint(3000, 7000)
 
-        for enemy in enemies[:]:
-            enemy.y += ENEMY_SPEED
-            if enemy.y > WINDOW_HEIGHT:
-                enemies.remove(enemy)
+            for line in lines:
+                line.y += LINE_SPEED
+                if line.y > WINDOW_HEIGHT:
+                    line.y = -LINE_HEIGHT
+
+            for enemy in enemies[:]:
+                enemy.y += ENEMY_SPEED
+                if enemy.y > WINDOW_HEIGHT:
+                    enemies.remove(enemy)
+                if enemy.colliderect(car):
+                    game_over = True
 
         screen.fill((0, 150, 0))
         pygame.draw.rect(
@@ -101,6 +111,10 @@ def main():
             screen.blit(enemy_image, enemy)
 
         screen.blit(car_image, car)
+
+        if game_over:
+            screen.blit(game_over_text, game_over_rect)
+
         pygame.display.flip()
         clock.tick(60)
 
